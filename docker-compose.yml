@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - frontend
+      - backend
+
+  frontend:
+    image: node:24
+    working_dir: /app
+    volumes:
+      - ./frontend/example:/app
+    command: npm run dev -- --host
+    environment:
+        - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "80:5173"
+
+  backend:
+    image: node:24
+    working_dir: /app
+    volumes:
+      - ./backend/backend-example:/app
+    command: npm run start:dev
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    expose:
+      - "3000"
